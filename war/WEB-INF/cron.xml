@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+	<cron>
+		<url>/cron/5</url>
+		<description>Check emails every 5 minutes</description>
+		<schedule>every 5 minutes</schedule>
+	</cron>
+	<cron>
+		<url>/cron/10</url>
+		<description>Check emails every 10 minutes</description>
+		<schedule>every 10 minutes</schedule>
+	</cron>
+	<cron>
+		<url>/cron/15</url>
+		<description>Check emails every 15 minutes</description>
+		<schedule>every 15 minutes</schedule>
+	</cron>
+	<cron>
+		<url>/cron/30</url>
+		<description>Check emails every 30 minutes</description>
+		<schedule>every 5 minutes</schedule>
+	</cron>
+
+	<cron>
+		<url>/cron/60</url>
+		<description>Check emails every hour</description>
+		<schedule>every 60 minutes</schedule>
+	</cron>
+
+</cronentries>

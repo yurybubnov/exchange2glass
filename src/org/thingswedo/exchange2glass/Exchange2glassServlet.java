@@ -15,11 +15,7 @@ public class Exchange2glassServlet extends HttpServlet {
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 
-		if (user != null) {
-			resp.setContentType("text/plain");
-			resp.getWriter().println("Hello, " + user.getNickname());
-		} else {
-			resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
-		}
+		resp.setContentType("text/html");
+		resp.getWriter().println("Hello, " + user.getNickname());
 	}
 }
