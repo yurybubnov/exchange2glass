@@ -47,95 +47,126 @@ import org.thingswedo.exchange2glass.AuthUtil;
  * @author Jenny Murphy - http://google.com/+JennyMurphy
  */
 public class NotifyServlet extends HttpServlet {
-  private static final Logger LOG = Logger.getLogger(NotifyServlet.class.getSimpleName());
+	private static final Logger LOG = Logger.getLogger(NotifyServlet.class
+			.getSimpleName());
 
-  @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-    // Respond with OK and status 200 in a timely fashion to prevent redelivery
-    response.setContentType("text/html");
-    Writer writer = response.getWriter();
-    writer.append("OK");
-    writer.close();
+	@Override
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		// Respond with OK and status 200 in a timely fashion to prevent
+		// redelivery
 
-    // Get the notification object from the request body (into a string so we
-    // can log it)
-    BufferedReader notificationReader =
-        new BufferedReader(new InputStreamReader(request.getInputStream()));
-    String notificationString = "";
+		response.setContentType("text/html");
+		Writer writer = response.getWriter();
+		writer.append("OK");
+		writer.close();
 
-    // Count the lines as a very basic way to prevent Denial of Service attacks
-    int lines = 0;
-    while (notificationReader.ready()) {
-      notificationString += notificationReader.readLine();
-      lines++;
+		// Get the notification object from the request body (into a string so
+		// we
+		// can log it)
+		BufferedReader notificationReader = new BufferedReader(
+				new InputStreamReader(request.getInputStream()));
+		String notificationString = "";
 
-      // No notification would ever be this long. Something is very wrong.
-      if(lines > 1000) {
-        throw new IOException("Attempted to parse notification payload that was unexpectedly long.");
-      }
-    }
+		// Count the lines as a very basic way to prevent Denial of Service
+		// attacks
+		int lines = 0;
+		while (notificationReader.ready()) {
+			notificationString += notificationReader.readLine();
+			lines++;
 
-    LOG.info("got raw notification " + notificationString);
+			// No notification would ever be this long. Something is very wrong.
+			if (lines > 1000) {
+				throw new IOException(
+						"Attempted to parse notification payload that was unexpectedly long.");
+			}
+		}
 
-    JsonFactory jsonFactory = new JacksonFactory();
+		LOG.severe("got raw notification " + notificationString);
 
-    // If logging the payload is not as important, use
-    // jacksonFactory.fromInputStream instead.
-    Notification notification = jsonFactory.fromString(notificationString, Notification.class);
+		JsonFactory jsonFactory = new JacksonFactory();
 
-    LOG.info("Got a notification with ID: " + notification.getItemId());
+		// If logging the payload is not as important, use
+		// jacksonFactory.fromInputStream instead.
+		Notification notification = jsonFactory.fromString(notificationString,
+				Notification.class);
 
-    // Figure out the impacted user and get their credentials for API calls
-    String userId = notification.getUserToken();
-    Credential credential = AuthUtil.getCredential(userId);
-    Mirror mirrorClient = MirrorClient.getMirror(credential);
+		LOG.severe("Got a notification with ID: " + notification.getItemId()
+				+ " For " + notification.getCollection());
 
+		// Figure out the impacted user and get their credentials for API calls
+		String userId = notification.getUserToken();
+		Credential credential = AuthUtil.getCredential(userId);
+		Mirror mirrorClient = MirrorClient.getMirror(credential);
 
-    if (notification.getCollection().equals("locations")) {
-      LOG.info("Notification of updated location");
-      Mirror glass = MirrorClient.getMirror(credential);
-      // item id is usually 'latest'
-      Location location = glass.locations().get(notification.getItemId()).execute();
+		if (notification.getCollection().equals("locations")) {
+			LOG.info("Notification of updated location");
+			Mirror glass = MirrorClient.getMirror(credential);
+			// item id is usually 'latest'
+			Location location = glass.locations().get(notification.getItemId())
+					.execute();
 
-      LOG.info("New location is " + location.getLatitude() + ", " + location.getLongitude());
-      MirrorClient.insertTimelineItem(
-          credential,
-          new TimelineItem()
-              .setText("You are now at " + location.getLatitude() + ", " + location.getLongitude())
-              .setNotification(new NotificationConfig().setLevel("DEFAULT")).setLocation(location)
-              .setMenuItems(Lists.newArrayList(new MenuItem().setAction("NAVIGATE"))));
+			LOG.info("New location is " + location.getLatitude() + ", "
+					+ location.getLongitude());
+			MirrorClient.insertTimelineItem(
+					credential,
+					new TimelineItem()
+							.setText(
+									"You are now at " + location.getLatitude()
+											+ ", " + location.getLongitude())
+							.setNotification(
+									new NotificationConfig()
+											.setLevel("DEFAULT"))
+							.setLocation(location)
+							.setMenuItems(
+									Lists.newArrayList(new MenuItem()
+											.setAction("NAVIGATE"))));
 
-      // This is a location notification. Ping the device with a timeline item
-      // telling them where they are.
-    } else if (notification.getCollection().equals("timeline")) {
-      // Get the impacted timeline item
-      TimelineItem timelineItem = mirrorClient.timeline().get(notification.getItemId()).execute();
-      LOG.info("Notification impacted timeline item with ID: " + timelineItem.getId());
+			// This is a location notification. Ping the device with a timeline
+			// item
+			// telling them where they are.
+		} else if (notification.getCollection().equals("timeline")) {
+			// Get the impacted timeline item
+			TimelineItem timelineItem = mirrorClient.timeline()
+					.get(notification.getItemId()).execute();
+			LOG.info("Notification impacted timeline item with ID: "
+					+ timelineItem.getId());
 
-      // If it was a share, and contains a photo, bounce it back to the user.
-      if (notification.getUserActions().contains(new UserAction().setType("SHARE"))
-          && timelineItem.getAttachments() != null && timelineItem.getAttachments().size() > 0) {
-        LOG.info("It was a share of a photo. Sending the photo back to the user.");
+			// If it was a share, and contains a photo, bounce it back to the
+			// user.
+			if (notification.getUserActions().contains(
+					new UserAction().setType("SHARE"))
+					&& timelineItem.getAttachments() != null
+					&& timelineItem.getAttachments().size() > 0) {
+				LOG.info("It was a share of a photo. Sending the photo back to the user.");
 
-        // Get the first attachment
-        String attachmentId = timelineItem.getAttachments().get(0).getId();
-        LOG.info("Found attachment with ID " + attachmentId);
+				// Get the first attachment
+				String attachmentId = timelineItem.getAttachments().get(0)
+						.getId();
+				LOG.info("Found attachment with ID " + attachmentId);
 
-        // Get the attachment content
-        InputStream stream =
-            MirrorClient.getAttachmentInputStream(credential, timelineItem.getId(), attachmentId);
+				// Get the attachment content
+				InputStream stream = MirrorClient.getAttachmentInputStream(
+						credential, timelineItem.getId(), attachmentId);
 
-        // Create a new timeline item with the attachment
-        TimelineItem echoPhotoItem = new TimelineItem();
-        echoPhotoItem.setNotification(new NotificationConfig().setLevel("DEFAULT"));
-        echoPhotoItem.setText("Echoing your shared photo");
+				// Create a new timeline item with the attachment
+				TimelineItem echoPhotoItem = new TimelineItem();
+				echoPhotoItem.setNotification(new NotificationConfig()
+						.setLevel("DEFAULT"));
+				echoPhotoItem.setText("Echoing your shared photo");
 
-        MirrorClient.insertTimelineItem(credential, echoPhotoItem, "image/jpeg", stream);
-
-      } else {
-        LOG.warning("I don't know what to do with this notification, so I'm ignoring it.");
-      }
-    }
-  }
+				MirrorClient.insertTimelineItem(credential, echoPhotoItem,
+						"image/jpeg", stream);
+			} else if (notification.getUserActions().contains(
+					new UserAction().setType("REPLY"))) {
+				LOG.severe("REPLY: " + timelineItem.toPrettyString());
+				String origItemID = timelineItem.getInReplyTo();
+				TimelineItem origItem = mirrorClient.timeline().get(origItemID)
+						.execute();
+				LOG.severe("ORIG: " + origItem.toPrettyString());
+			} else {
+				LOG.warning("I don't know what to do with this notification, so I'm ignoring it.");
+			}
+		}
+	}
 }

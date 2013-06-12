@@ -48,12 +48,22 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>notify</servlet-name>
-		<servlet-class>com.google.glassware.NotifyServlet</servlet-class>
+		<servlet-class>org.thingswedo.exchange2glass.NotifyServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>notify</servlet-name>
 		<url-pattern>/notify</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>singout</servlet-name>
+		<servlet-class>org.thingswedo.exchange2glass.SingOut</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>singout</servlet-name>
+		<url-pattern>/singout</url-pattern>
+	</servlet-mapping>
+
 	<security-constraint>
 		<web-resource-collection>
 			<url-pattern>*.jsp</url-pattern>

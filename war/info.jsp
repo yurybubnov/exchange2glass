@@ -26,10 +26,6 @@
 		DatastoreService datastoreService = DatastoreServiceFactory
 				.getDatastoreService();
 		User user = userService.getCurrentUser();
-		if (user == null) {
-			response.sendRedirect(userService.createLoginURL(request
-					.getRequestURI()));
-		}
 		pageContext.setAttribute("user", user);
 		Filter f = new FilterPredicate("user", FilterOperator.EQUAL, user.getUserId());
 		Query q = new Query(SaveSettingsServlet.SINGLE_SETTING_ENTOTY_NAME)
@@ -38,7 +34,7 @@
 	%>
 	<p>
 		Hello, ${fn:escapeXml(user.nickname)}! (You can <a
-			href="<%=userService.createLogoutURL("/")%>">sign out</a>.)
+			href="/signout">sign out</a>.)
 	</p>
 	<br>
 
