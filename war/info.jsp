@@ -31,7 +31,7 @@
 					.getRequestURI()));
 		}
 		pageContext.setAttribute("user", user);
-		Filter f = new FilterPredicate("user", FilterOperator.EQUAL, user);
+		Filter f = new FilterPredicate("user", FilterOperator.EQUAL, user.getUserId());
 		Query q = new Query(SaveSettingsServlet.SINGLE_SETTING_ENTOTY_NAME)
 				.setFilter(f);
 		Entity e = datastoreService.prepare(q).asSingleEntity();

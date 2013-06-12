@@ -10,6 +10,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/EWSJavaAPI_1.2.jar"/>
 	<classpathentry kind="con" path="com.google.gdt.eclipse.managedapis.MANAGED_API_CONTAINER/mirror-v1r10lv1.15.0-rc"/>
 	<classpathentry kind="con" path="com.google.gdt.eclipse.managedapis.MANAGED_API_CONTAINER/oauth2-v2r39lv1.15.0-rc"/>
-	<classpathentry kind="con" path="com.google.gdt.eclipse.managedapis.MANAGED_API_CONTAINER/adexchangebuyer-v1r21lv1.15.0-rc"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-14.0.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

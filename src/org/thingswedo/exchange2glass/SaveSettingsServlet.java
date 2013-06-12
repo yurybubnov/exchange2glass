@@ -31,7 +31,6 @@ public class SaveSettingsServlet extends HttpServlet {
 
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-
 		DatastoreService datastoreService = DatastoreServiceFactory
 				.getDatastoreService();
 		Filter f = new FilterPredicate("user", FilterOperator.EQUAL, user);
@@ -40,7 +39,7 @@ public class SaveSettingsServlet extends HttpServlet {
 
 		if (settings == null) {
 			settings = new Entity(SINGLE_SETTING_ENTOTY_NAME);
-			settings.setProperty("user", user);
+			settings.setProperty("user", user.getUserId());
 		}
 		settings.setProperty("username", username);
 		settings.setProperty("password", password);

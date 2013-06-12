@@ -63,9 +63,6 @@ public class AuthServlet extends HttpServlet {
       AuthUtil.setUserId(req, userId);
       flow.createAndStoreCredential(tokenResponse, userId);
 
-      // The dance is done. Do our bootstrapping stuff for this user
-      NewUserBootstrapper.bootstrapNewUser(req, userId);
-
       // Redirect back to index
       res.sendRedirect(WebUtil.buildUrl(req, "/"));
       return;

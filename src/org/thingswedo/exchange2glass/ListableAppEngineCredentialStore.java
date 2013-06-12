@@ -38,50 +38,59 @@ import java.util.List;
  */
 public class ListableAppEngineCredentialStore implements CredentialStore {
 
-  private static final String KIND = ListableAppEngineCredentialStore.class.getName();
+	private static final String KIND = ListableAppEngineCredentialStore.class
+			.getName();
 
-  public List<String> listAllUsers() {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query userQuery = new Query(KIND);
-    Iterable<Entity> userEntities = datastore.prepare(userQuery).asIterable();
+	public List<String> listAllUsers() {
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+		Query userQuery = new Query(KIND);
+		Iterable<Entity> userEntities = datastore.prepare(userQuery)
+				.asIterable();
 
-    List<String> userIds = new ArrayList<String>();
-    for (Entity userEntity : userEntities) {
-      userIds.add(userEntity.getKey().getName());
-    }
-    return userIds;
-  }
+		List<String> userIds = new ArrayList<String>();
+		for (Entity userEntity : userEntities) {
+			userIds.add(userEntity.getKey().getName());
+		}
+		return userIds;
+	}
 
+	@Override
+	public void store(String userId, Credential credential) {
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+		Entity entity = new Entity(KIND, userId);
+		entity.setProperty("accessToken", credential.getAccessToken());
+		entity.setProperty("refreshToken", credential.getRefreshToken());
+		entity.setProperty("expirationTimeMillis",
+				credential.getExpirationTimeMilliseconds());
+		datastore.put(entity);
+	}
 
-  @Override
-  public void store(String userId, Credential credential) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Entity entity = new Entity(KIND, userId);
-    entity.setProperty("accessToken", credential.getAccessToken());
-    entity.setProperty("refreshToken", credential.getRefreshToken());
-    entity.setProperty("expirationTimeMillis", credential.getExpirationTimeMilliseconds());
-    datastore.put(entity);
-  }
+	@Override
+	public void delete(String userId, Credential credential) {
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+		Key key = KeyFactory.createKey(KIND, userId);
+		datastore.delete(key);
+	}
 
-  @Override
-  public void delete(String userId, Credential credential) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Key key = KeyFactory.createKey(KIND, userId);
-    datastore.delete(key);
-  }
-
-  @Override
-  public boolean load(String userId, Credential credential) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Key key = KeyFactory.createKey(KIND, userId);
-    try {
-      Entity entity = datastore.get(key);
-      credential.setAccessToken((String) entity.getProperty("accessToken"));
-      credential.setRefreshToken((String) entity.getProperty("refreshToken"));
-      credential.setExpirationTimeMilliseconds((Long) entity.getProperty("expirationTimeMillis"));
-      return true;
-    } catch (EntityNotFoundException exception) {
-      return false;
-    }
-  }
+	@Override
+	public boolean load(String userId, Credential credential) {
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+		Key key = KeyFactory.createKey(KIND, userId);
+		try {
+			Entity entity = datastore.get(key);
+			credential.setAccessToken((String) entity
+					.getProperty("accessToken"));
+			credential.setRefreshToken((String) entity
+					.getProperty("refreshToken"));
+			credential.setExpirationTimeMilliseconds((Long) entity
+					.getProperty("expirationTimeMillis"));
+			return true;
+		} catch (EntityNotFoundException exception) {
+			return false;
+		}
+	}
 }
