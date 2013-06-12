@@ -42,8 +42,8 @@ public class Exchange2glassServlet extends HttpServlet {
 		mv.setState("DEFAULT");
 		mi.setValues(Arrays.asList(mv));
 		item.setMenuItems(Arrays.asList(mi));
-		item.setNotification(new NotificationConfig().setLevel("audio_only"));
-		item.set("email-ID", UUID.randomUUID());
+		//item.setNotification(new NotificationConfig().setLevel("audio_only"));
+		item.setSourceItemId("USER_ID#ITEM_ID");
 		item = MirrorClient.insertTimelineItem(credential, item);
 		LOG.severe("Sent item: " + item.toPrettyString());
 	}

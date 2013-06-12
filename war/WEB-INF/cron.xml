@@ -18,7 +18,7 @@
 	<cron>
 		<url>/cron/30</url>
 		<description>Check emails every 30 minutes</description>
-		<schedule>every 5 minutes</schedule>
+		<schedule>every 30 minutes</schedule>
 	</cron>
 
 	<cron>

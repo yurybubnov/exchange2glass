@@ -34,7 +34,8 @@
 	%>
 	<p>
 		Hello, ${fn:escapeXml(user.nickname)}! (You can <a
-			href="/signout">sign out</a>.)
+			href="/signout">delete subscription</a> or <a
+			href="<%=userService.createLogoutURL("/")%>">sign out</a>.)
 	</p>
 	<br>
 

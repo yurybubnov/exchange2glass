@@ -33,7 +33,7 @@ public class SaveSettingsServlet extends HttpServlet {
 		User user = userService.getCurrentUser();
 		DatastoreService datastoreService = DatastoreServiceFactory
 				.getDatastoreService();
-		Filter f = new FilterPredicate("user", FilterOperator.EQUAL, user);
+		Filter f = new FilterPredicate("user", FilterOperator.EQUAL, user.getUserId());
 		Query q = new Query(SINGLE_SETTING_ENTOTY_NAME).setFilter(f);
 		Entity settings = datastoreService.prepare(q).asSingleEntity();
 
@@ -42,7 +42,7 @@ public class SaveSettingsServlet extends HttpServlet {
 			settings.setProperty("user", user.getUserId());
 		}
 		settings.setProperty("username", username);
-		settings.setProperty("password", password);
+		settings.setProperty("password", Utils.encodePassword(password));
 		settings.setProperty("exchange", exchnage);
 		settings.setProperty("interval", interval);
 

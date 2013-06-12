@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.mirror.model.Subscription;
 import com.google.api.services.mirror.model.SubscriptionsListResponse;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 
 public class SingOut extends HttpServlet {
 	@Override
@@ -26,5 +28,8 @@ public class SingOut extends HttpServlet {
 		}
 		
 		AuthUtil.clearUserId(req);
+		UserService userService = UserServiceFactory.getUserService();
+		
+		resp.sendRedirect(userService.createLogoutURL("/"));
 	}
 }
