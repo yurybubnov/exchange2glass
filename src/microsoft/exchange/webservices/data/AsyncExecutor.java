@@ -29,7 +29,7 @@ import com.google.appengine.api.ThreadManager;
             1);
 	
 	AsyncExecutor(){
-		super(1,5,10,TimeUnit.SECONDS, queue, ThreadManager.backgroundThreadFactory());
+		super(1,5,10,TimeUnit.SECONDS, queue, ThreadManager.currentRequestThreadFactory());
 	}
 	
 	
@@ -41,7 +41,7 @@ import com.google.appengine.api.ThreadManager;
 	        execute(ftask);
 	        if(callback != null)
 	        	callback.setTask(ftask);
-	        ThreadManager.createBackgroundThread(callback).start();
+	        ThreadManager.createThreadForCurrentRequest(callback).start();
 	        return ftask;
 	    }
 
