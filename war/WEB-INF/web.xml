@@ -87,6 +87,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
 		</user-data-constraint>
 	</security-constraint>
+	<!-- 
 	<security-constraint>
 		<web-resource-collection>
 			<url-pattern>/cron/*</url-pattern>
@@ -95,6 +96,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 			<role-name>admin</role-name>
 		</auth-constraint>
 	</security-constraint>
+	 -->
 	<welcome-file-list>
 		<welcome-file>info.jsp</welcome-file>
 	</welcome-file-list>

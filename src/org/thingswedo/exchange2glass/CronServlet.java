@@ -104,7 +104,11 @@ public class CronServlet extends HttpServlet {
 									ItemSchema.UniqueBody);
 							EmailMessage message = EmailMessage.bind(service,
 									itemEvent.getItemId(), ps);
-
+							if (message.getIsRead()){
+								logger.severe("Message was read before: "+message.getSubject());
+								continue;
+							}
+							
 							String email = message.getFrom().getName();
 							if (email == null || email.isEmpty()) {
 								email = message.getFrom().getAddress();
