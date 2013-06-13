@@ -1,9 +1,13 @@
 package microsoft.exchange.webservices.data;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public abstract class Strings {
-
+	private static final Logger logger = Logger.getLogger(Strings.class
+			.getName());
 	static Properties BUNDLE = new Properties();
 	/*static Locale locale;
 	static ResourceBundle rb;*/
@@ -189,7 +193,7 @@ public abstract class Strings {
 	public static String InvalidRecurrenceRange=""; 
 	public static String DayOfMonthMustBeSpecifiedForRecurrencePattern=""; 
 	public static String InvalidAutodiscoverSmtpAddress=""; 
-
+	private volatile static boolean loaded = false;
  	static 
 	{
 		/*try 
@@ -220,10 +224,10 @@ public abstract class Strings {
 		}*/
 		
 		try {
-			BUNDLE.load(Thread.currentThread().getContextClassLoader().getResource("microsoft/exchange/webservices/data/Strings.properties").openStream());
+			BUNDLE.load(Strings.class.getResource("/Strings.properties").openStream());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "cannot load strings", e);
 		}
 		loadProperties();
 	}

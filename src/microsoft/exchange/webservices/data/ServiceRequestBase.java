@@ -898,6 +898,10 @@ abstract class ServiceRequestBase {
 
 			return outparam;
 		} catch (ProtocolException e) {
+			if (e.getCause() != null) {
+				this.processWebException(e, outparam.getParam());
+			}
+
 			// Wrap exception if the above code block didn't throw
 			throw new ServiceRequestException(String.format(
 					Strings.ServiceRequestFailed, e.getMessage()), e);
@@ -937,7 +941,8 @@ abstract class ServiceRequestBase {
 					Strings.ServiceRequestFailed, ex.getMessage()), ex);
 		} catch (IOException e) {
 			// Wrap exception.
-			throw new ServiceRequestException(e.getMessage(), e);
+			throw new ServiceRequestException(String.format(
+					Strings.ServiceRequestFailed, e.getMessage()), e);
 		}
 
 		return request;

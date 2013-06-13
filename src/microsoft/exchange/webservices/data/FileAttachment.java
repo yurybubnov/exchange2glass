@@ -211,7 +211,7 @@ public final class FileAttachment extends Attachment {
 	public void load(String fileName) throws Exception {
 		File fileStream = new File(fileName);
 		//FileOutputStream fos = new FileOutputStream(fileStream);
-		this.loadToStream = null;
+		this.loadToStream = null;//fos;
 		try {
 			this.load();
 		} finally {

@@ -50,11 +50,11 @@ public class App {
 			// when a new mail is received, when an item or folder is created,
 			// or
 			// when an item or folder is deleted.
-
+			//wm = "AQAAAFmibvBV/RZFh/rs83D5DZ7AEwYzAAAAAAA=";
 			List folder = new ArrayList();
 			folder.add(FolderId
 					.getFolderIdFromWellKnownFolderName(WellKnownFolderName.Inbox));
-
+			System.out.println("SUB-----------------------------");
 			PullSubscription subscription = service
 					.subscribeToPullNotifications(folder, 5
 					/*
@@ -69,35 +69,23 @@ public class App {
 			GetEventsResults events = subscription.getEvents();
 			// Loop through all item-related events.
 			for (ItemEvent itemEvent : events.getItemEvents()) {
-				if (itemEvent.getEventType() == EventType.NewMail) {
+			//	if (itemEvent.getEventType() == EventType.NewMail) {
 					EmailMessage message = EmailMessage.bind(service,
 							itemEvent.getItemId());
-					// if (message.isNew()) {
-					System.out.println(message.isNew() + " New: "
+					message.load();
+					String email = message.getFrom().getName();
+					if (email == null || email.isEmpty()) {
+						email = message.getFrom().getAddress();
+					}
+					System.out.println("From: "+email);
+					System.out.println(message.isNew() + " Subject: "
 							+ message.getSubject());
-					// }
-				}
-				if (itemEvent.getEventType() == EventType.Created) {
-					EmailMessage message = EmailMessage.bind(service,
-							itemEvent.getItemId());
-					// if (message.isNew()) {
-					System.out.println(message.isNew() + " CR: "
-							+ message.getSubject());
-					// }
-				}
+					System.out.println(message.isNew() + " Body: "
+						+ message.getUniqueBody());
+//				}
 
 			}
 
-			// Loop through all folder-related events.
-			for (FolderEvent folderEvent : events.getFolderEvents()) {
-				if (folderEvent.getEventType() == EventType.Created) {
-					Folder f1 = Folder.bind(service, folderEvent.getFolderId());
-
-				} else if (folderEvent.getEventType() == EventType.Deleted) {
-					System.out.println("folder  deleted"
-							+ folderEvent.getFolderId().getUniqueId());
-				}
-			}
 			System.out.println("OLD WM:" + subscription.getWaterMark());
 			wm = subscription.getWaterMark();
 			// subscription.unsubscribe();

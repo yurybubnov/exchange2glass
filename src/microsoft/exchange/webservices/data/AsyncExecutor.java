@@ -6,10 +6,12 @@
  **************************************************************************/
 package microsoft.exchange.webservices.data;
 
+import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +31,9 @@ import com.google.appengine.api.ThreadManager;
             1);
 	
 	AsyncExecutor(){
-		super(1,5,10,TimeUnit.SECONDS, queue, ThreadManager.currentRequestThreadFactory());
+		super(1,5,10,TimeUnit.SECONDS, queue
+				, ThreadManager.currentRequestThreadFactory()
+				);
 	}
 	
 	
@@ -42,6 +46,7 @@ import com.google.appengine.api.ThreadManager;
 	        if(callback != null)
 	        	callback.setTask(ftask);
 	        ThreadManager.createThreadForCurrentRequest(callback).start();
+	        //new Thread(callback).start();
 	        return ftask;
 	    }
 
