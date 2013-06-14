@@ -60,7 +60,7 @@ public class AuthFilter implements Filter {
       }
 
       // Is this a robot visit to the notify servlet? If so skip check
-      if (httpRequest.getRequestURI().equals("/notify")) {
+      if (httpRequest.getRequestURI().equals("/notify") || httpRequest.getRequestURI().startsWith("/cron")) {
         LOG.info("Skipping auth check for notify servlet");
         filterChain.doFilter(request, response);
         return;
