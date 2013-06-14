@@ -34,60 +34,75 @@ import javax.servlet.http.HttpServletResponse;
  * @author Jenny Murphy - http://google.com/+JennyMurphy
  */
 public class AuthFilter implements Filter {
-  private static final Logger LOG = Logger.getLogger(AuthFilter.class.getSimpleName());
+	private static final Logger LOG = Logger.getLogger(AuthFilter.class
+			.getSimpleName());
 
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
-      throws IOException, ServletException {
-    if (response instanceof HttpServletResponse && request instanceof HttpServletRequest) {
-      HttpServletRequest httpRequest = (HttpServletRequest) request;
-      HttpServletResponse httpResponse = (HttpServletResponse) response;
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain filterChain) throws IOException, ServletException {
 
-      // Redirect to https when on App Engine since subscriptions only work over
-      // https
-      if (httpRequest.getServerName().contains("appspot.com")
-          && httpRequest.getScheme().equals("http")) {
+		if (response instanceof HttpServletResponse
+				&& request instanceof HttpServletRequest) {
+			HttpServletRequest httpRequest = (HttpServletRequest) request;
+			HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        httpResponse.sendRedirect(httpRequest.getRequestURL().toString()
-            .replaceFirst("http", "https"));
-        return;
-      }
+			// Is this a robot visit to the notify servlet? If so skip check
+			if (httpRequest.getRequestURI().equals("/notify")
+					|| httpRequest.getRequestURI().startsWith("/cron")) {
+				LOG.info("Skipping auth check for notify servlet");
+				filterChain.doFilter(request, response);
+				return;
+			}
 
-      // Are we in the middle of an auth flow? IF so skip check.
-      if (httpRequest.getRequestURI().equals("/oauth2callback")) {
-        LOG.info("Skipping auth check during auth flow");
-        filterChain.doFilter(request, response);
-        return;
-      }
+			// Redirect to https when on App Engine since subscriptions only
+			// work over
+			// https
+			if (httpRequest.getServerName().contains("appspot.com")
+					&& httpRequest.getScheme().equals("http")) {
 
-      // Is this a robot visit to the notify servlet? If so skip check
-      if (httpRequest.getRequestURI().equals("/notify") || httpRequest.getRequestURI().startsWith("/cron")) {
-        LOG.info("Skipping auth check for notify servlet");
-        filterChain.doFilter(request, response);
-        return;
-      }
+				httpResponse.sendRedirect(httpRequest.getRequestURL()
+						.toString().replaceFirst("http", "https"));
+				return;
+			}
 
-      LOG.fine("Checking to see if anyone is logged in");
-      if (AuthUtil.getUserId(httpRequest) == null
-          || AuthUtil.getCredential(AuthUtil.getUserId(httpRequest)) == null
-          || AuthUtil.getCredential(AuthUtil.getUserId(httpRequest)).getAccessToken() == null) {
-        // redirect to auth flow
-        httpResponse.sendRedirect(WebUtil.buildUrl(httpRequest, "/oauth2callback"));
-        return;
-      }
+			// Are we in the middle of an auth flow? IF so skip check.
+			if (httpRequest.getRequestURI().equals("/oauth2callback")) {
+				LOG.info("Skipping auth check during auth flow");
+				filterChain.doFilter(request, response);
+				return;
+			}
 
-      // Things checked out OK :)
-      filterChain.doFilter(request, response);
-    } else {
-      LOG.warning("Unexpected non HTTP servlet response. Proceeding anyway.");
-      filterChain.doFilter(request, response);
-    }
-  }
+			// Is this a robot visit to the notify servlet? If so skip check
+			//if (httpRequest.getRequestURI().equals("/notify")
+			//		|| httpRequest.getRequestURI().startsWith("/cron")) {
+			//	LOG.info("Skipping auth check for notify servlet");
+			//	filterChain.doFilter(request, response);
+			//	return;
+			//}
 
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-  }
+			LOG.fine("Checking to see if anyone is logged in");
+			if (AuthUtil.getUserId(httpRequest) == null
+					|| AuthUtil.getCredential(AuthUtil.getUserId(httpRequest)) == null
+					|| AuthUtil.getCredential(AuthUtil.getUserId(httpRequest))
+							.getAccessToken() == null) {
+				// redirect to auth flow
+				httpResponse.sendRedirect(WebUtil.buildUrl(httpRequest,
+						"/oauth2callback"));
+				return;
+			}
 
-  @Override
-  public void destroy() {
-  }
+			// Things checked out OK :)
+			filterChain.doFilter(request, response);
+		} else {
+			LOG.warning("Unexpected non HTTP servlet response. Proceeding anyway.");
+			filterChain.doFilter(request, response);
+		}
+	}
+
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException {
+	}
+
+	@Override
+	public void destroy() {
+	}
 }

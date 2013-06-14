@@ -3,7 +3,7 @@
 	<cron>
 		<url>/cron/5</url>
 		<description>Check emails every 5 minutes</description>
-		<schedule>every 5 minutes</schedule>
+		<schedule>every 1 minutes</schedule>
 	</cron>
 	<cron>
 		<url>/cron/10</url>

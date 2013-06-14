@@ -77,16 +77,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>singout</servlet-name>
 		<url-pattern>/singout</url-pattern>
 	</servlet-mapping>
-
+<!-- 
 	<security-constraint>
 		<web-resource-collection>
-			<url-pattern>*.jsp</url-pattern>
+			<url-pattern>/*.jsp</url-pattern>
 			<url-pattern>/saveSettings</url-pattern>
 		</web-resource-collection>
 		<user-data-constraint>
 			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
 		</user-data-constraint>
 	</security-constraint>
+	-->
 	<!-- 
 	<security-constraint>
 		<web-resource-collection>
