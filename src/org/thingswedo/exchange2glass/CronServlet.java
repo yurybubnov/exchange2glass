@@ -37,24 +37,19 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 
 public class CronServlet extends HttpServlet {
-	private static final Logger logger = Logger.getLogger(CronServlet.class
-			.getName());
+	private static final Logger logger = Logger.getLogger(CronServlet.class.getName());
 
 	private static final String itemPattern = "<article><section><div class=\"text-small\">%s</div><div class=\"text-normal\"><b>%s</b></div><div class=\"text-small\">%s</div></section></article>";
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			String interval = req.getRequestURI().substring(
-					req.getRequestURI().lastIndexOf('/') + 1);
+			String interval = req.getRequestURI().substring(req.getRequestURI().lastIndexOf('/') + 1);
+			int inervalValue = Integer.valueOf(interval);
 			logger.severe("Starting Cron for interval '" + interval + "'");
-			DatastoreService datastoreService = DatastoreServiceFactory
-					.getDatastoreService();
-			Filter f = new FilterPredicate("interval", FilterOperator.EQUAL,
-					interval);
-			Query q = new Query(SaveSettingsServlet.SINGLE_SETTING_ENTOTY_NAME)
-					.setFilter(f);
+			DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+			Filter f = new FilterPredicate("interval", FilterOperator.EQUAL, interval);
+			Query q = new Query(SaveSettingsServlet.SINGLE_SETTING_ENTOTY_NAME).setFilter(f);
 			Iterable<Entity> list = datastoreService.prepare(q).asIterable();
 			if (list == null) {
 				logger.severe("List is empty");
@@ -62,76 +57,59 @@ public class CronServlet extends HttpServlet {
 			}
 
 			for (Entity e : list) {
+				String userID = e.getProperty("user").toString();
+				String lastWM = (e.getProperty("watermark") == null) ? null : e.getProperty("watermark").toString();
+				String userName = e.getProperty("username").toString();
+				String password = Utils.decodePassword(e.getProperty("password").toString());
+				URI exchange = new URI(e.getProperty("exchange").toString());
+
+				logger.severe("Current user " + userID);
+
 				try {
-					logger.severe("Current user "
-							+ e.getProperty("username").toString());
-					logger.severe("Current password "
-							+ Utils.decodePassword(e.getProperty("password")
-									.toString()));
-					logger.severe("Current URL "
-							+ e.getProperty("exchange").toString());
-					logger.severe("Current WM "
-							+ ((e.getProperty("watermark") == null) ? null : e
-									.getProperty("watermark").toString()));
 
-					String lastWM = (e.getProperty("watermark") == null) ? null
-							: e.getProperty("watermark").toString();
-
-					ExchangeService service = new ExchangeService(
-							ExchangeVersion.Exchange2010_SP2);
-					ExchangeCredentials credentials = new WebCredentials(e
-							.getProperty("username").toString(),
-							Utils.decodePassword(e.getProperty("password")
-									.toString()));
+					ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+					ExchangeCredentials credentials = new WebCredentials(userName, password);
 					service.setCredentials(credentials);
 
-					service.setUrl(new URI(e.getProperty("exchange").toString()));
+					service.setUrl(exchange);
 
 					List<FolderId> folder = new ArrayList<FolderId>();
-					folder.add(FolderId
-							.getFolderIdFromWellKnownFolderName(WellKnownFolderName.Inbox));
+					folder.add(FolderId.getFolderIdFromWellKnownFolderName(WellKnownFolderName.Inbox));
 
-					PullSubscription subscription = service
-							.subscribeToPullNotifications(folder, 5, lastWM,
-									EventType.NewMail);
+					PullSubscription subscription = service.subscribeToPullNotifications(folder, inervalValue * 2,
+							lastWM, EventType.NewMail);
 					GetEventsResults events = subscription.getEvents();
 					// Loop through all item-related events.
 					for (ItemEvent itemEvent : events.getItemEvents()) {
 						if (itemEvent.getEventType() == EventType.NewMail) {
 
-							PropertySet ps = new PropertySet(
-									BasePropertySet.FirstClassProperties,
+							PropertySet ps = new PropertySet(BasePropertySet.FirstClassProperties,
 									ItemSchema.UniqueBody);
-							EmailMessage message = EmailMessage.bind(service,
-									itemEvent.getItemId(), ps);
-							if (message.getIsRead()){
-								logger.severe("Message was read before: "+message.getSubject());
+							EmailMessage message = EmailMessage.bind(service, itemEvent.getItemId(), ps);
+							if (message.getIsRead()) {
+								logger.severe("Message was read before: " + message.getSubject());
 								continue;
 							}
-							
+
 							String email = message.getFrom().getName();
 							if (email == null || email.isEmpty()) {
 								email = message.getFrom().getAddress();
 							}
-							
+
 							String html = message.getUniqueBody().toString();
 							html = html.replace("<html>", "");
 							html = html.replace("</html>", "");
 							html = html.replace("<body>", "");
 							html = html.replace("</body>", "");
-							
-							String content = String.format(itemPattern, email,
-									message.getSubject(), message
-											.getUniqueBody().getText());
+
+							String content = String.format(itemPattern, email, message.getSubject(), message
+									.getUniqueBody().getText());
 
 							TimelineItem item = new TimelineItem();
 							item.setHtml(content);
 
-							Credential credential = AuthUtil.getCredential(e
-									.getProperty("user").toString());
-							logger.severe("Inserting for User:"
-									+ e.getProperty("user").toString()
-									+ " Item: " + item.toPrettyString());
+							Credential credential = AuthUtil.getCredential(userID);
+							logger.severe("Inserting for User:" + userID + " Item: " + item.toPrettyString());
 							MirrorClient.insertTimelineItem(credential, item);
 						}
 					}
@@ -140,9 +118,7 @@ public class CronServlet extends HttpServlet {
 					datastoreService.put(e);
 
 				} catch (Exception ex) {
-					logger.severe("Cannot process mail for user "
-							+ e.getProperty("user") + " Exception: "
-							+ ex.getMessage());
+					logger.severe("Cannot process mail for user " + userID + " Exception: " + ex.getMessage());
 					throw new RuntimeException(ex);
 				}
 

@@ -27,6 +27,7 @@ import com.google.appengine.api.datastore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * A new credential store for App Engine. It's exactly the same as
@@ -37,7 +38,8 @@ import java.util.List;
  * @author Jenny Murphy - http://google.com/+JennyMurphy
  */
 public class ListableAppEngineCredentialStore implements CredentialStore {
-
+	private static final Logger logger = Logger
+			.getLogger(ListableAppEngineCredentialStore.class.getName());
 	private static final String KIND = ListableAppEngineCredentialStore.class
 			.getName();
 
@@ -77,6 +79,7 @@ public class ListableAppEngineCredentialStore implements CredentialStore {
 
 	@Override
 	public boolean load(String userId, Credential credential) {
+		logger.severe("Loading credentials for user "+userId);
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
 		Key key = KeyFactory.createKey(KIND, userId);
@@ -88,8 +91,10 @@ public class ListableAppEngineCredentialStore implements CredentialStore {
 					.getProperty("refreshToken"));
 			credential.setExpirationTimeMilliseconds((Long) entity
 					.getProperty("expirationTimeMillis"));
+			logger.severe("Loaded credentials for user "+userId);
 			return true;
 		} catch (EntityNotFoundException exception) {
+			logger.severe("Not loaded credentials for user "+userId+" Excpetion: "+exception.getMessage());
 			return false;
 		}
 	}
