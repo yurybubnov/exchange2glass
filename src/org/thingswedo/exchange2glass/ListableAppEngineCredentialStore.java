@@ -67,6 +67,7 @@ public class ListableAppEngineCredentialStore implements CredentialStore {
 		entity.setProperty("expirationTimeMillis",
 				credential.getExpirationTimeMilliseconds());
 		datastore.put(entity);
+		logger.severe("Saved credentials for user "+userId);
 	}
 
 	@Override

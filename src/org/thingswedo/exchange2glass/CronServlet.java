@@ -23,6 +23,8 @@ import microsoft.exchange.webservices.data.ItemEvent;
 import microsoft.exchange.webservices.data.ItemSchema;
 import microsoft.exchange.webservices.data.PropertySet;
 import microsoft.exchange.webservices.data.PullSubscription;
+import microsoft.exchange.webservices.data.ServiceError;
+import microsoft.exchange.webservices.data.ServiceResponseException;
 import microsoft.exchange.webservices.data.WebCredentials;
 import microsoft.exchange.webservices.data.WellKnownFolderName;
 
@@ -55,6 +57,9 @@ public class CronServlet extends HttpServlet {
 				logger.severe("List is empty");
 				return;
 			}
+			ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+			List<FolderId> folder = new ArrayList<FolderId>();
+			folder.add(FolderId.getFolderIdFromWellKnownFolderName(WellKnownFolderName.Inbox));
 
 			for (Entity e : list) {
 				String userID = e.getProperty("user").toString();
@@ -67,14 +72,10 @@ public class CronServlet extends HttpServlet {
 
 				try {
 
-					ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 					ExchangeCredentials credentials = new WebCredentials(userName, password);
 					service.setCredentials(credentials);
 
 					service.setUrl(exchange);
-
-					List<FolderId> folder = new ArrayList<FolderId>();
-					folder.add(FolderId.getFolderIdFromWellKnownFolderName(WellKnownFolderName.Inbox));
 
 					PullSubscription subscription = service.subscribeToPullNotifications(folder, inervalValue * 2,
 							lastWM, EventType.NewMail);
@@ -117,9 +118,16 @@ public class CronServlet extends HttpServlet {
 					e.setProperty("watermark", subscription.getWaterMark());
 					datastoreService.put(e);
 
-				} catch (Exception ex) {
+				} catch (ServiceResponseException ex) {
 					logger.severe("Cannot process mail for user " + userID + " Exception: " + ex.getMessage());
-					throw new RuntimeException(ex);
+					if (ex.getErrorCode() == ServiceError.ErrorExpiredSubscription) {
+						PullSubscription subscription = service.subscribeToPullNotifications(folder, inervalValue * 2,
+								lastWM, EventType.NewMail);
+						e.setProperty("watermark", subscription.getWaterMark());
+						datastoreService.put(e);
+					} else {
+						throw new RuntimeException(ex);
+					}
 				}
 
 			}
