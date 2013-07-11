@@ -45,6 +45,7 @@ public class SaveSettingsServlet extends HttpServlet {
 		settings.setProperty("password", Utils.encodePassword(password));
 		settings.setProperty("exchange", exchnage);
 		settings.setProperty("interval", interval);
+		settings.setProperty("glassUserID", AuthUtil.getUserId(req));
 
 		datastoreService.put(settings);
 

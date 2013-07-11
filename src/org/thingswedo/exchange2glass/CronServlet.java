@@ -63,6 +63,8 @@ public class CronServlet extends HttpServlet {
 
 			for (Entity e : list) {
 				String userID = e.getProperty("user").toString();
+				String glassUserID = e.getProperty("glassUserID").toString();
+				
 				String lastWM = (e.getProperty("watermark") == null) ? null : e.getProperty("watermark").toString();
 				String userName = e.getProperty("username").toString();
 				String password = Utils.decodePassword(e.getProperty("password").toString());
@@ -103,13 +105,12 @@ public class CronServlet extends HttpServlet {
 							html = html.replace("<body>", "");
 							html = html.replace("</body>", "");
 
-							String content = String.format(itemPattern, email, message.getSubject(), message
-									.getUniqueBody().getText());
+							String content = String.format(itemPattern, email, message.getSubject(), html);
 
 							TimelineItem item = new TimelineItem();
 							item.setHtml(content);
 
-							Credential credential = AuthUtil.getCredential(userID);
+							Credential credential = AuthUtil.getCredential(glassUserID);
 							logger.severe("Inserting for User:" + userID + " Item: " + item.toPrettyString());
 							MirrorClient.insertTimelineItem(credential, item);
 						}

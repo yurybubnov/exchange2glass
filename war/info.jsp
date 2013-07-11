@@ -23,19 +23,21 @@
 
 	<%
 		UserService userService = UserServiceFactory.getUserService();
-		DatastoreService datastoreService = DatastoreServiceFactory
-				.getDatastoreService();
+		DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 		User user = userService.getCurrentUser();
+		if (user == null) {
+			response.sendRedirect(userService.createLoginURL(request.getRequestURI()));
+			return;
+		}
 		pageContext.setAttribute("user", user);
 		Filter f = new FilterPredicate("user", FilterOperator.EQUAL, user.getUserId());
-		Query q = new Query(SaveSettingsServlet.SINGLE_SETTING_ENTOTY_NAME)
-				.setFilter(f);
+		Query q = new Query(SaveSettingsServlet.SINGLE_SETTING_ENTOTY_NAME).setFilter(f);
 		Entity e = datastoreService.prepare(q).asSingleEntity();
 	%>
 	<p>
-		Hello, ${fn:escapeXml(user.nickname)}! (You can <a
-			href="/signout">delete subscription</a> or <a
-			href="<%=userService.createLogoutURL("/")%>">sign out</a>.)
+		Hello, ${fn:escapeXml(user.nickname)}! (You can <a href="/signout">delete
+			subscription</a> or <a href="<%=userService.createLogoutURL("/")%>">sign
+			out</a>.)
 	</p>
 	<br>
 
@@ -45,7 +47,7 @@
 				value="<%=(e == null) ? "" : e.getProperty("username")%>" />
 		</p>
 		<p>
-			Password: <input type="password" name="password"/>
+			Password: <input type="password" name="password" />
 		</p>
 		<p>
 			Service URL: <input type="text" name="exchange"
@@ -54,24 +56,24 @@
 		<p>
 			Pull interval: <select name="interval">
 				<option value="5"
-					<%=(e != null && "5".equalsIgnoreCase(e.getProperty(
-					"interval").toString())) ? "selected=\"selected\"" : ""%>>5
+					<%=(e != null && "5".equalsIgnoreCase(e.getProperty("interval").toString())) ? "selected=\"selected\""
+					: ""%>>5
 					min</option>
 				<option value="10"
-					<%=(e != null && "10".equalsIgnoreCase(e.getProperty(
-					"interval").toString())) ? "selected=\"selected\"" : ""%>>10
+					<%=(e != null && "10".equalsIgnoreCase(e.getProperty("interval").toString())) ? "selected=\"selected\""
+					: ""%>>10
 					min</option>
 				<option value="15"
-					<%=(e != null && "15".equalsIgnoreCase(e.getProperty(
-					"interval").toString())) ? "selected=\"selected\"" : ""%>>15
+					<%=(e != null && "15".equalsIgnoreCase(e.getProperty("interval").toString())) ? "selected=\"selected\""
+					: ""%>>15
 					min</option>
 				<option value="30"
-					<%=(e != null && "30".equalsIgnoreCase(e.getProperty(
-					"interval").toString())) ? "selected=\"selected\"" : ""%>>30
+					<%=(e != null && "30".equalsIgnoreCase(e.getProperty("interval").toString())) ? "selected=\"selected\""
+					: ""%>>30
 					min</option>
 				<option value="60"
-					<%=(e != null && "60".equalsIgnoreCase(e.getProperty(
-					"interval").toString())) ? "selected=\"selected\"" : ""%>>1
+					<%=(e != null && "60".equalsIgnoreCase(e.getProperty("interval").toString())) ? "selected=\"selected\""
+					: ""%>>1
 					hour</option>
 			</select>
 		</p>
