@@ -19,6 +19,7 @@ import microsoft.exchange.webservices.data.ExchangeService;
 import microsoft.exchange.webservices.data.ExchangeVersion;
 import microsoft.exchange.webservices.data.FolderId;
 import microsoft.exchange.webservices.data.GetEventsResults;
+import microsoft.exchange.webservices.data.Item;
 import microsoft.exchange.webservices.data.ItemEvent;
 import microsoft.exchange.webservices.data.ItemSchema;
 import microsoft.exchange.webservices.data.PropertySet;
@@ -85,9 +86,14 @@ public class CronServlet extends HttpServlet {
 					// Loop through all item-related events.
 					for (ItemEvent itemEvent : events.getItemEvents()) {
 						if (itemEvent.getEventType() == EventType.NewMail) {
-
+							Item eitem = Item.bind(service, itemEvent.getItemId());
+							
+							String itemClass = eitem.getItemClass();
+							logger.severe("Item: "+itemEvent.getItemId()+" Class: "+itemClass);
+							
 							PropertySet ps = new PropertySet(BasePropertySet.FirstClassProperties,
 									ItemSchema.UniqueBody);
+							
 							EmailMessage message = EmailMessage.bind(service, itemEvent.getItemId(), ps);
 							if (message.getIsRead()) {
 								logger.severe("Message was read before: " + message.getSubject());

@@ -18,29 +18,29 @@
   "name": "mirror", 
   "files": [
     {
-      "downloadUrl": "/downloads/mirror/v1/10/java/1.15.0-rc/google-api-services-mirror-v1-rev10-1.15.0-rc.jar", 
-      "path": "google-api-services-mirror-v1-rev10-1.15.0-rc.jar", 
+      "downloadUrl": "/downloads/mirror/v1/13/java/1.15.0-rc/google-api-services-mirror-v1-rev13-1.15.0-rc.jar", 
+      "path": "google-api-services-mirror-v1-rev13-1.15.0-rc.jar", 
       "type": "binary", 
-      "timestamp": "2013-05-31 08:49"
+      "timestamp": "2013-06-27 03:41"
     }, 
     {
-      "downloadUrl": "/downloads/mirror/v1/10/java/1.15.0-rc/google-api-services-mirror-v1-rev10-1.15.0-rc-javadoc.jar", 
-      "path": "google-api-services-mirror-v1-rev10-1.15.0-rc-javadoc.jar", 
+      "downloadUrl": "/downloads/mirror/v1/13/java/1.15.0-rc/google-api-services-mirror-v1-rev13-1.15.0-rc-javadoc.jar", 
+      "path": "google-api-services-mirror-v1-rev13-1.15.0-rc-javadoc.jar", 
       "type": "documentation", 
-      "timestamp": "2013-05-31 08:49"
+      "timestamp": "2013-06-27 03:41"
     }, 
     {
-      "downloadUrl": "/downloads/mirror/v1/10/java/1.15.0-rc/google-api-services-mirror-v1-rev10-1.15.0-rc-sources.jar", 
-      "path": "google-api-services-mirror-v1-rev10-1.15.0-rc-sources.jar", 
+      "downloadUrl": "/downloads/mirror/v1/13/java/1.15.0-rc/google-api-services-mirror-v1-rev13-1.15.0-rc-sources.jar", 
+      "path": "google-api-services-mirror-v1-rev13-1.15.0-rc-sources.jar", 
       "type": "source", 
-      "timestamp": "2013-05-31 08:49"
+      "timestamp": "2013-06-27 03:41"
     }, 
     {
-      "path": "google-api-services-mirror-v1-rev10-1.15.0-rc.jar.properties", 
+      "path": "google-api-services-mirror-v1-rev13-1.15.0-rc.jar.properties", 
       "type": "android.properties"
     }
   ], 
-  "revision": 10, 
+  "revision": 13, 
   "language": "java", 
   "language_version": "1.15.0-rc", 
   "dependencies": [
